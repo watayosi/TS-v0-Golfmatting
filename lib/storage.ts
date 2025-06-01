@@ -15,7 +15,38 @@ const initializeStorage = () => {
   }
 }
 
-export const saveRoundRequest = (request: Omit<RoundRequest, "id" | "createdAt">) => {
+// Makeのwebhookに送信する関数
+const sendToMakeWebhook = async (request: RoundRequest) => {
+  const webhookUrl = "https://hook.us2.make.com/2odhmxowuetxiq6d4kb6knpqzya215ko"
+
+  const webhookData = {
+    nickname: request.nickname,
+    playDate: request.playDateSpecified || "", // 指定の場合のみ
+    preferredArea: request.preferredArea.join(", "), // 配列を文字列に変換
+    courseType: request.courseType,
+    requirements: request.requirements,
+  }
+
+  try {
+    const response = await fetch(webhookUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(webhookData),
+    })
+
+    if (response.ok) {
+      console.log("Makeへの送信が成功しました:", webhookData)
+    } else {
+      console.error("Makeへの送信でエラーが発生しました:", response.status, response.statusText)
+    }
+  } catch (error) {
+    console.error("Webhook送信中にエラーが発生しました:", error)
+  }
+}
+
+export const saveRoundRequest = async (request: Omit<RoundRequest, "id" | "createdAt">) => {
   initializeStorage()
 
   const existingRequests = getStoredRequests() // モックデータを含まない保存データのみ取得
@@ -27,6 +58,12 @@ export const saveRoundRequest = (request: Omit<RoundRequest, "id" | "createdAt">
 
   const updatedRequests = [...existingRequests, newRequest]
   localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedRequests))
+
+  // Makeのwebhookに送信（非同期で実行、エラーが発生してもリクエスト保存は成功）
+  sendToMakeWebhook(newRequest).catch((error) => {
+    console.error("Webhook送信は失敗しましたが、リクエストの保存は成功しました:", error)
+  })
+
   return newRequest
 }
 

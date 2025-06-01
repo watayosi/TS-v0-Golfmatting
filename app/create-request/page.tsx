@@ -30,7 +30,7 @@ export default function CreateRequestPage() {
     contact: "",
   })
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
     // バリデーション
@@ -55,12 +55,12 @@ export default function CreateRequestPage() {
     }
 
     try {
-      // リクエストを保存
-      const savedRequest = saveRoundRequest(formData)
+      // リクエストを保存（webhook送信も含む）
+      const savedRequest = await saveRoundRequest(formData)
       console.log("リクエスト作成完了:", savedRequest)
 
       // 成功メッセージ
-      alert("ラウンドリクエストを作成しました！")
+      alert("ラウンドリクエストを作成しました！Makeにも送信されました。")
 
       // 検索画面に遷移
       router.push("/search-requests")
