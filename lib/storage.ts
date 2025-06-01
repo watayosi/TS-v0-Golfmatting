@@ -18,7 +18,7 @@ const initializeStorage = () => {
 export const saveRoundRequest = (request: Omit<RoundRequest, "id" | "createdAt">) => {
   initializeStorage()
 
-  const existingRequests = getRoundRequests()
+  const existingRequests = getStoredRequests() // モックデータを含まない保存データのみ取得
   const newRequest: RoundRequest = {
     ...request,
     id: Date.now().toString(),
@@ -30,6 +30,7 @@ export const saveRoundRequest = (request: Omit<RoundRequest, "id" | "createdAt">
   return newRequest
 }
 
+// 全てのリクエストを取得（初期化済みの場合はLocalStorageから、未初期化の場合はモックデータ）
 export const getRoundRequests = (): RoundRequest[] => {
   if (typeof window === "undefined") {
     return mockRoundRequests
@@ -40,8 +41,7 @@ export const getRoundRequests = (): RoundRequest[] => {
   try {
     const stored = localStorage.getItem(STORAGE_KEY)
     if (stored) {
-      const parsedRequests = JSON.parse(stored)
-      return parsedRequests
+      return JSON.parse(stored)
     }
   } catch (error) {
     console.error("Error reading from localStorage:", error)
@@ -50,9 +50,17 @@ export const getRoundRequests = (): RoundRequest[] => {
   return []
 }
 
+// LocalStorageのデータをクリア
 export const clearRoundRequests = () => {
+  if (typeof window === "undefined") return
+
   localStorage.removeItem(STORAGE_KEY)
   localStorage.removeItem(INIT_KEY)
+
+  // 確実に削除されたことを確認
+  console.log("データを削除しました")
+  console.log("STORAGE_KEY存在確認:", localStorage.getItem(STORAGE_KEY))
+  console.log("INIT_KEY存在確認:", localStorage.getItem(INIT_KEY))
 }
 
 // デバッグ用：モックデータのみを取得
@@ -60,14 +68,22 @@ export const getMockRequests = (): RoundRequest[] => {
   return mockRoundRequests
 }
 
-// デバッグ用：保存されたデータのみを取得
+// デバッグ用：保存されたデータのみを取得（モックデータを含まない）
 export const getStoredRequests = (): RoundRequest[] => {
   if (typeof window === "undefined") return []
 
   try {
     const stored = localStorage.getItem(STORAGE_KEY)
-    if (stored) {
-      return JSON.parse(stored)
+    const isInitialized = localStorage.getItem(INIT_KEY)
+
+    if (stored && isInitialized) {
+      const parsedRequests = JSON.parse(stored)
+
+      // モックデータのIDリスト
+      const mockIds = mockRoundRequests.map((mock) => mock.id)
+
+      // モックデータを除外した保存データのみを返す
+      return parsedRequests.filter((req: RoundRequest) => !mockIds.includes(req.id))
     }
   } catch (error) {
     console.error("Error reading from localStorage:", error)

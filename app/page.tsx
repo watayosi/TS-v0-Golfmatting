@@ -9,12 +9,40 @@ export default function HomePage() {
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
       <div className="container mx-auto px-4 py-8">
         {/* ヘッダー */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-3 mb-4">
             <Golf className="h-12 w-12 text-green-600" />
             <h1 className="text-4xl font-bold text-gray-800">ゴルフマッチング</h1>
           </div>
           <p className="text-xl text-gray-600">一緒にゴルフを楽しむ仲間を見つけよう</p>
+        </div>
+
+        {/* 特徴 - 上部に移動 */}
+        <div className="max-w-4xl mx-auto mb-12">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-center text-2xl">サービスの特徴</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid md:grid-cols-3 gap-6">
+                <div className="text-center">
+                  <Users className="h-12 w-12 text-green-600 mx-auto mb-3" />
+                  <h3 className="font-semibold text-lg mb-2">簡単マッチング</h3>
+                  <p className="text-gray-600">条件に合うゴルフ仲間を簡単に見つけられます</p>
+                </div>
+                <div className="text-center">
+                  <Golf className="h-12 w-12 text-blue-600 mx-auto mb-3" />
+                  <h3 className="font-semibold text-lg mb-2">レベル別検索</h3>
+                  <p className="text-gray-600">スキルレベルに応じた仲間を探せます</p>
+                </div>
+                <div className="text-center">
+                  <Search className="h-12 w-12 text-purple-600 mx-auto mb-3" />
+                  <h3 className="font-semibold text-lg mb-2">詳細検索</h3>
+                  <p className="text-gray-600">日程、場所、人数など詳細な条件で検索可能</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* メインコンテンツ */}
@@ -52,32 +80,6 @@ export default function HomePage() {
               </CardContent>
             </Card>
           </div>
-
-          {/* 特徴 */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-center text-2xl">サービスの特徴</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid md:grid-cols-3 gap-6">
-                <div className="text-center">
-                  <Users className="h-12 w-12 text-green-600 mx-auto mb-3" />
-                  <h3 className="font-semibold text-lg mb-2">簡単マッチング</h3>
-                  <p className="text-gray-600">条件に合うゴルフ仲間を簡単に見つけられます</p>
-                </div>
-                <div className="text-center">
-                  <Golf className="h-12 w-12 text-blue-600 mx-auto mb-3" />
-                  <h3 className="font-semibold text-lg mb-2">レベル別検索</h3>
-                  <p className="text-gray-600">スキルレベルに応じた仲間を探せます</p>
-                </div>
-                <div className="text-center">
-                  <Search className="h-12 w-12 text-purple-600 mx-auto mb-3" />
-                  <h3 className="font-semibold text-lg mb-2">詳細検索</h3>
-                  <p className="text-gray-600">日程、場所、人数など詳細な条件で検索可能</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
 
           {/* デバッグパネル */}
           <DebugPanel />

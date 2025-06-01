@@ -1,27 +1,51 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { getRoundRequests, clearRoundRequests, getMockRequests, getStoredRequests } from "../lib/storage"
-import { Trash2, RefreshCw, Database, HardDrive } from "lucide-react"
+import { Trash2, RefreshCw, Database, HardDrive, AlertTriangle } from "lucide-react"
 
 export default function DebugPanel() {
-  const [allRequests, setAllRequests] = useState(getRoundRequests())
-  const [mockRequests, setMockRequests] = useState(getMockRequests())
-  const [storedRequests, setStoredRequests] = useState(getStoredRequests())
+  const [allRequests, setAllRequests] = useState<any[]>([])
+  const [mockRequests, setMockRequests] = useState<any[]>([])
+  const [storedRequests, setStoredRequests] = useState<any[]>([])
+  const [message, setMessage] = useState("")
+
+  // コンポーネントマウント時にデータを読み込む
+  useEffect(() => {
+    handleRefresh()
+  }, [])
 
   const handleRefresh = () => {
-    setAllRequests(getRoundRequests())
-    setMockRequests(getMockRequests())
-    setStoredRequests(getStoredRequests())
+    if (typeof window !== "undefined") {
+      setAllRequests(getRoundRequests())
+      setMockRequests(getMockRequests())
+      setStoredRequests(getStoredRequests())
+      setMessage("")
+    }
   }
 
   const handleClear = () => {
     if (confirm("保存されたリクエストをすべて削除しますか？（モックデータも含む）")) {
-      clearRoundRequests()
-      handleRefresh()
-      alert("削除しました")
+      try {
+        clearRoundRequests()
+
+        // 削除後に再読み込み
+        setTimeout(() => {
+          handleRefresh()
+          setMessage("データを削除しました。ページを再読み込みすると初期データが再度表示されます。")
+        }, 100)
+      } catch (error) {
+        console.error("削除エラー:", error)
+        setMessage("削除中にエラーが発生しました")
+      }
+    }
+  }
+
+  const handleReload = () => {
+    if (confirm("ページを再読み込みしますか？")) {
+      window.location.reload()
     }
   }
 
@@ -40,7 +64,17 @@ export default function DebugPanel() {
             <Trash2 className="h-4 w-4 mr-2" />
             全削除
           </Button>
+          <Button onClick={handleReload} variant="secondary" size="sm">
+            <AlertTriangle className="h-4 w-4 mr-2" />
+            ページ再読み込み
+          </Button>
         </div>
+
+        {message && (
+          <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 p-3 rounded mb-4 text-sm">
+            {message}
+          </div>
+        )}
 
         <div className="grid md:grid-cols-3 gap-4 text-sm">
           {/* 全リクエスト */}
@@ -55,6 +89,7 @@ export default function DebugPanel() {
                   {index + 1}. {req.nickname} - {req.playDateSpecified || req.playDateFlexible || "日程未定"}
                 </div>
               ))}
+              {allRequests.length === 0 && <div className="text-xs text-gray-500">データがありません</div>}
             </div>
           </div>
 
@@ -85,6 +120,7 @@ export default function DebugPanel() {
                   {index + 1}. {req.nickname} - {req.playDateSpecified || req.playDateFlexible || "日程未定"}
                 </div>
               ))}
+              {storedRequests.length === 0 && <div className="text-xs text-gray-500">データがありません</div>}
             </div>
           </div>
         </div>
